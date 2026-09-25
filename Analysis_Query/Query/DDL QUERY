@@ -1,0 +1,118 @@
+/* Creating a database for the Project using DDL Functions */
+
+---Use Drop if the database already exsist---
+---This query drop the database Pizza_Sales_SQL_Analysis from the server and set only single user who run the query ----
+
+USE master
+GO
+
+IF DB_ID ('Pizza_Sales_SQL_Analysis') IS NOT NULL
+	BEGIN 
+		ALTER DATABASE Pizza_Sales_SQL_Analysis
+		SET SINGLE_USER 
+		WITH ROLLBACK IMMEDIATE;
+		DROP DATABASE Pizza_Sales_SQL_Analysis
+	END
+GO
+
+---This query Create the database Pizza_Sales_SQL_Analysis in the server ----
+
+CREATE DATABASE Pizza_Sales_SQL_Analysis;
+GO
+
+USE Pizza_Sales_SQL_Analysis
+GO
+
+
+---This query Create the Table in the datbase Pizza_Sales_SQL_Analysis----
+
+--- Creating Order_details table after drop if table exsits---
+DROP TABLE IF EXISTS Order_details;
+
+CREATE TABLE Order_details (
+					Order_details_id INT,
+					Order_id INT,
+					Pizza_id VARCHAR(50),
+					Quantity INT
+)
+GO
+
+--- Creating Table Order after drop if table exsits ---
+DROP TABLE IF EXISTS Orders;
+CREATE TABLE Orders(
+					Order_id INT,
+					Order_date DATE,
+					Order_time TIME
+)
+GO
+
+--- Creating Table Pizza_types after drop if table exsits ---
+DROP TABLE IF EXISTS Pizza_types;
+CREATE TABLE Pizza_types(
+						Pizza_type_id VARCHAR(50),
+						Pizza_Names VARCHAR(50),
+						Category VARCHAR(50),
+						Ingredients VARCHAR(100)
+)
+GO
+
+--- Creating Table Pizza after drop if table exsits ---
+DROP TABLE IF EXISTS Pizzas;
+CREATE TABLE Pizzas(
+					Pizza_id VARCHAR(50),
+					Pizza_type_id VARCHAR(50),
+					Size VARCHAR(50),
+					Price Decimal(10,3)
+)
+GO
+
+/* LOAD DATA INTO TABLES Truncate existing data before Bulk Insert */
+---Inserting data into  Order_details---
+TRUNCATE TABLE Order_details; 
+BULK INSERT Order_details
+FROM 'C:\Users\Asus\Desktop\SQL Projects\Date 25 Sep 2026\pizza_sales\order_details.csv'
+WITH(
+	FORMAT ='CSV',
+	FIRSTROW=2,
+	FIELDQUOTE='"',
+	TABLOCK
+);
+
+GO
+
+---Inserting data into Orders---
+TRUNCATE TABLE  Orders;
+BULK INSERT  Orders
+FROM 'C:\Users\Asus\Desktop\SQL Projects\Date 25 Sep 2026\pizza_sales\orders.csv'
+WITH(
+	FORMAT ='CSV',
+	FIRSTROW=2,
+	FIELDQUOTE='"',
+	TABLOCK
+);
+
+GO
+
+---Inserting data into Pizza_types---
+TRUNCATE TABLE  Pizza_types;
+BULK INSERT  Pizza_types
+FROM 'C:\Users\Asus\Desktop\SQL Projects\Date 25 Sep 2026\pizza_sales\pizza_types.csv'
+WITH(
+	FORMAT ='CSV',
+	FIRSTROW=2,
+	FIELDQUOTE='"',
+	TABLOCK
+);
+
+GO
+
+---Inserting data into Pizzas---
+TRUNCATE TABLE  Pizzas;
+BULK INSERT  Pizzas
+FROM 'C:\Users\Asus\Desktop\SQL Projects\Date 25 Sep 2026\pizza_sales\pizzas.csv'
+WITH(
+	FORMAT ='CSV',
+	FIRSTROW=2,
+	FIELDQUOTE='"',
+	TABLOCK
+);

@@ -1,6 +1,78 @@
-Intermediate:
+/*Intermediate:
 Join the necessary tables to find the total quantity of each pizza category ordered.
 Determine the distribution of orders by hour of the day.
 Join relevant tables to find the category-wise distribution of pizzas.
 Group the orders by date and calculate the average number of pizzas ordered per day.
 Determine the top 3 most ordered pizza types based on revenue.
+*/
+--- Task-1 Join the necessary tables to find the total quantity of each pizza category ordered Show Category Total No of order Total Revenue High to low .----
+
+USE Pizza_Sales_SQL_Analysis
+
+SELECT
+p.Category,
+SUM(od.Quantity) AS Total_Sales,
+ROUND(SUM(od.Quantity*pz.Price),2) AS Total_Revenue
+FROM Pizza_types AS p
+LEFT JOIN Pizzas AS pz
+ON p.Pizza_type_id=pz.Pizza_type_id
+LEFT JOIN Order_details AS od
+ON pz.Pizza_id=od.Pizza_id
+Group BY p.Category
+ORDER BY Total_Revenue DESC
+
+
+---TASK-2 Determine the distribution of orders by hour of the day.---
+
+SELECT
+    DATEPART(HOUR,Order_time)AS Order_Time,
+    COUNT(Order_id) AS Total_Order
+    FROM Orders
+    GROUP BY DATEPART(HOUR,Order_time)
+    ORDER BY Total_Order;
+
+
+
+---Task-3 Join relevant tables to find the category-wise distribution of pizzas.---
+
+SELECT
+pz.Category,
+SUM(od.Quantity) AS Total_Distribuion
+FROM Order_details AS od
+LEFT JOIN Pizzas AS P
+ON od.Pizza_id=P.Pizza_id
+JOIN Pizza_types AS pz
+ON pz.Pizza_type_id=P.Pizza_type_id
+GROUP BY pz.Category
+ORDER BY Total_Distribuion
+
+---TASK-4 Group the orders by date and calculate the average number of pizzas ordered per day.
+SELECT
+DATENAME(WEEKDAY,Order_Date) AS Weekday_Name,
+COUNT(Order_id) AS Total_Order
+FROM Orders
+GROUP BY DATENAME(WEEKDAY,Order_Date)
+
+--- TASK-4 Determine the top 3 most ordered pizza types based on revenue
+SELECT TOP 3
+pt.Pizza_Names,
+SUM(p.Price*od.Quantity) AS Total_Revenue 
+FROM Order_details AS od
+LEFT JOIN Pizzas AS p
+ON p.Pizza_id=od.Pizza_id
+LEFT JOIN Pizza_types AS pt
+ON pt.Pizza_type_id=p.Pizza_type_id
+GROUP BY Pizza_Names
+ORDER BY Total_Revenue DESC
+
+
+
+
+
+
+---Data view---
+
+SELECT*FROM Orders;
+SELECT*FROM Pizza_types;
+SELECT*FROM Order_details;
+SELECT*FROM Pizzas

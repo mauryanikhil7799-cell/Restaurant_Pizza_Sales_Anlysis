@@ -1,0 +1,70 @@
+Basic:
+Retrieve the total number of orders placed.
+Calculate the total revenue generated from pizza sales.
+Identify the highest-priced pizza.
+Identify the most common pizza size ordered.
+List the top 5 most ordered pizza types along with their quantities.
+
+/* Data analysis question
+*/
+---TASK-1 Retrive the total no of order placed---
+USE Pizza_Sales_SQL_Analysis;
+SELECT
+COUNT(Order_id) AS Total_Order_Placed
+FROM Orders;
+
+---TASK-2 Generate the total Revenue genrated from Total sales---
+SELECT
+SUM(o.Quantity*p.Price )AS Total_Revenue
+FROM Order_details AS o
+LEFT JOIN Pizzas AS p
+ON p.Pizza_id=o.Pizza_id;
+
+---Task-3 Identify the highest-priced pizza.
+ 
+SELECT TOP 1 
+p.Pizza_id,
+p.Price,
+p.Pizza_type_id,
+pt.Pizza_Names,
+pt.Category,
+pt.Ingredients
+FROM Pizzas AS p
+JOIN Pizza_types AS pt
+ON  p.Pizza_type_id=pt.Pizza_type_id
+ORDER BY Price DESC
+
+---Task-4 Identify the most common pizza size ordered.
+SELECT
+P.Size,
+COUNT(*) AS Total_Oders
+FROM Orders AS o
+JOIN Order_details AS od
+ON o.Order_id=od.Order_id
+JOIN Pizzas AS P
+ON od.Pizza_id=P.Pizza_id
+GROUP BY P.Size
+ORDER BY Total_Oders DESC
+
+---Task-5 List the top 5 most ordered pizza types along with their quantities.
+
+SELECT TOP 5
+P.Pizza_type_id,
+pt.Pizza_Names,
+COUNT(*) AS Total_Oders
+FROM Orders AS o
+JOIN Order_details AS od
+ON o.Order_id=od.Order_id
+JOIN Pizzas AS P
+ON od.Pizza_id=P.Pizza_id
+JOIN Pizza_types AS pt
+ON pt.Pizza_type_id=P.Pizza_type_id
+GROUP BY P.Pizza_type_id , pt.Pizza_Names
+ORDER BY Total_Oders DESC
+
+---Data view---
+
+SELECT*FROM Orders;
+SELECT*FROM Pizza_types;
+SELECT*FROM Order_details;
+SELECT*FROM Pizzas

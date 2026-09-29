@@ -1,0 +1,81 @@
+/*Advanced:
+Calculate the percentage contribution of each pizza type to total revenue.
+Analyze the cumulative revenue generated over time.
+Determine the top 3 most ordered pizza types based on revenue for each pizza category.
+*/
+
+---Task-1 Calculate the percentage contribution of each pizza type to total revenue.---
+
+USE Pizza_Sales_SQL_Analysis;
+
+WITH Revenue_CTE AS 
+(
+	SELECT
+	p.Pizza_type_id,
+	SUM(od.Quantity*p.Price) AS Total_Revenue,
+	SUM(SUM(od.Quantity*p.Price)) OVER() Overall_Total_Revenue
+	FROM Order_details AS od
+	LEFT JOIN Pizzas AS p
+	ON p.Pizza_id=od.Pizza_id
+	LEFT JOIN Pizza_types AS pt
+	ON p.Pizza_type_id=pt.Pizza_type_id
+	GROUP BY p.Pizza_type_id
+)
+
+SELECT
+	Pizza_type_id,
+	Total_Revenue,
+	Overall_Total_Revenue,
+	CONCAT(
+			CAST(Total_Revenue*100/Overall_Total_Revenue AS DECIMAL(10,2)),'%') AS Percentage_contribution
+FROM Revenue_CTE
+
+
+
+--- Task-2 Analyze the cumulative revenue generated over time.---
+SELECT
+o.Order_date,
+CAST(SUM(p.Price*od.Quantity)AS DECIMAL (10,2)) AS Total_Revenue,
+CAST(SUM(SUM(p.Price*od.Quantity)) OVER(ORDER BY O.Order_date) AS DECIMAL (10,2)) AS Cumulative_revenue
+FROM Orders AS o
+LEFT JOIN Order_details AS od
+ON o.Order_id=od.Order_id
+LEFT JOIN Pizzas AS p
+ON p.Pizza_id=od.Pizza_id
+LEFT JOIN Pizza_types AS pt
+ON p.Pizza_type_id=pt.Pizza_type_id
+GROUP BY o.Order_date
+
+
+---Task-3 Determine the top 3 most ordered pizza types based on revenue for each pizza category.---
+WITH Pizza_Revenue AS
+(
+	SELECT
+	pt.Category,
+	pt.Pizza_type_id,
+	pt.Pizza_Names,
+	CAST(SUM(p.Price*od.Quantity) AS DECIMAL(10,2)) AS Total_Revenue
+	FROM Order_details AS od
+	LEFT JOIN Pizzas AS p
+	ON p.Pizza_id=od.Pizza_id
+	LEFT JOIN Pizza_types AS pt
+	ON p.Pizza_type_id=pt.Pizza_type_id
+	GROUP BY
+	pt.Category,
+	pt.Pizza_type_id,
+	pt.Pizza_Names
+),
+RANKED_Pizzas AS 
+(
+	SELECT*,
+	ROW_NUMBER()OVER(PARTITION BY Category ORDER BY Total_Revenue DESC) AS Revenue_Rank
+	FROM Pizza_Revenue
+)
+SELECT
+Category,
+Pizza_Names,
+Total_Revenue,
+Revenue_Rank
+FROM RANKED_Pizzas
+WHERE Revenue_Rank<=3
+ORDER BY Category,Revenue_Rank
